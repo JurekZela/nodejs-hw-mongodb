@@ -2,12 +2,11 @@ import { createFakeContact } from "../utils/createFakeContact.js";
 import { readContacts } from "../utils/readContacts.js";
 import { writeContacts } from "../utils/writeContacts.js";
 
-export const addOneContact = async (number) => {
+export const addOneContact = async () => {
 const contacts = await readContacts();
-const newContact = Array(number).fill(0).map(createFakeContact);
+const newContact = createFakeContact();
 
-const result = [...contacts, ...newContact];
-await writeContacts(result);
+await writeContacts([...contacts, newContact]);
 };
 
-addOneContact(1);
+addOneContact();
