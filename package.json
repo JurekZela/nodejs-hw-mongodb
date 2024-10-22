@@ -1,17 +1,12 @@
 {
-  "name": "goit-node-js",
+  "name": "nodejs-hw-mongodb",
   "version": "1.0.0",
-  "description": "goit-node-js",
+  "description": "nodejs-hw-mongodb",
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "node src/index",
-    "get-all": "node src/scripts/getAllContacts",
-    "generate": "node src/scripts/generateContacts.js",
-    "add-one": "node src/scripts/addOneContact.js",
-    "count": "node src/scripts/countContacts.js",
-    "remove-last": "node src/scripts/removeLastContact.js",
-    "remove-all": "node src/scripts/removeAllContacts.js"
+    "dev": "nodemon src/index",
+    "start": "node src/index"
   },
   "keywords": [],
   "author": "",
