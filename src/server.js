@@ -9,16 +9,14 @@ const PORT = Number(env('PORT', '3000'));
 
 export const startServer = () => {
     const app = express();
+    app.use(cors());
 
-app.use(
-    pino({
+    const logger = app.use(pino({
         transport: {
             target: 'pino-pretty',
         }
-    })
-);
-app.use(cors());
-
+    }));
+    
 app.use((reg, res, next) => {
     console.log(`Time: ${new Date().toLocaleString()}`);
     next();

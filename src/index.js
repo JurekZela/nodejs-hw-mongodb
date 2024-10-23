@@ -1,3 +1,7 @@
 import { startServer } from './server.js';
 
-startServer();
+const boostrap = async() => {
+    startServer();
+};
+
+boostrap();
