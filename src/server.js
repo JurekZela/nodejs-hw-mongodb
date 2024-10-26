@@ -3,49 +3,58 @@ import cors from "cors";
 import express from "express";
 
 import { env } from "./utils/env.js";
+import * as contactServices from "./services/contacts.js";
 
 const PORT = Number(env('PORT', '3000'));
 
 
-export const startServer = () => {
+export const setupServer = () => {
     const app = express();
-
-app.use(
-    pino({
+    app.use(cors());
+    const logger = app.use(pino({
         transport: {
             target: 'pino-pretty',
         }
-    })
-);
-app.use(cors());
+    }));
+    // app.use(logger);
 
-app.use((reg, res, next) => {
-    console.log(`Time: ${new Date().toLocaleString()}`);
-    next();
-});
+    app.get("/contacts", async (reg, res) => {
+        const data = await contactServices.getContacts();
 
-app.get('/', (reg, res) => {
-
-    res.json({
-        message: 'Hello World!',
+        res.json({
+            status: 200,
+            message: "Successfully find contacts:)",
+            data,
+        });
     });
-});
+
+    app.get("/contacts/:id", async (reg, res) => {
+        const { _id } = reg.params;
+        const data = await contactServices.getContactById(_id);
+
+        if (!data) {
+            return res.status(404).json({
+                status: 404,
+                message: "Contact not found",
+            });
+        };
+
+        res.json({
+            status: 200,
+            message: `Successfully found contact with id ${_id}!`,
+            data,
+        });
+    });
 
 app.use('*', (reg, res, next) => {
     res.status(404).json({
-        message: 'Route not found',
-    });
-});
-
-app.use((err, reg, res, next) => {
-    res.status(500).json({
-        message: 'something with wrong!',
-        error: err.message,
+        message: 'Not found',
     });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
 
 };
+
