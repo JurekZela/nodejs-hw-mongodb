@@ -28,9 +28,14 @@ export const setupServer = () => {
         });
     });
 
-    app.get("/contacts/:id", async (reg, res) => {
-        const { _id } = reg.params;
-        const data = await contactServices.getContactById(_id);
+    app.get("/contacts/:contactId", async (reg, res) => {
+        console.log(reg.params);
+
+
+        const { contactId } = reg.params;
+
+        const data = await contactServices.getContactById(contactId);
+
 
         if (!data) {
             return res.status(404).json({
@@ -41,16 +46,16 @@ export const setupServer = () => {
 
         res.json({
             status: 200,
-            message: `Successfully found contact with id ${_id}!`,
+            message: `Successfully found contact with id ${contactId}!`,
             data,
         });
     });
 
-app.use('*', (reg, res, next) => {
-    res.status(404).json({
-        message: 'Not found',
+    app.use('*', (reg, res, next) => {
+        res.status(404).json({
+            message: 'Not found',
+        });
     });
-});
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
