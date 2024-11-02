@@ -1,4 +1,5 @@
 import createHttpError from "http-errors";
+import mongoose from 'mongoose';
 import * as contactServices from "../services/contacts.js";
 
 export const getContactsController = async (reg, res) => {
@@ -11,16 +12,20 @@ export const getContactsController = async (reg, res) => {
     });
 };
 
-export const getContactByIdController =  async (reg, res) => {
-
+export const getContactByIdController =  async (reg, res, next) => {
     const { contactId } = reg.params;
+
+    if (!mongoose.Types.ObjectId.isValid(contactId)) {
+        throw createHttpError(404, 'Contact not found');
+      }
 
     const data = await contactServices.getContactById(contactId);
 
 
-    if (!data) {
-        throw createHttpError(404, "Contact not found");
-    };
+     if (!data) {
+    next(createHttpError(404, 'Contact not found'));
+    return;
+  }
 
     res.json({
         status: 200,
@@ -42,21 +47,20 @@ export const createContactController = async (reg, res) => {
 };
 
 export const patchContactController = async (reg, res, next) => {
-    const { contactId } = reg.params;
+  const { contactId } = reg.params;
 
-    const result = await contactServices.updateContact({ _id: contactId, payload: reg.body });
+  const result = await contactServices.updateContact({ _id: contactId, payload: reg.body });
 
+  if (!result) {
+    next(createHttpError(404, "Contact not found"));
+    return;
+  };
 
-    if (!result) {
-        next(createHttpError(404, "Contact not found"));
-        return;
-    };
-
-    res.json({
-        status: 200,
-        message: 'Successfully upserted a student!',
-        data: result.contact,
-    });
+  res.json({
+    status: 200,
+    message: 'Successfully upserted a student!',
+    data: result.contact,
+  });
 };
 
 export const deleteContactController = async (reg, res, next) => {
