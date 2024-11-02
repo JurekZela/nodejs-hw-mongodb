@@ -1,10 +1,9 @@
-const errorHandler = (err, reg, res, next) => {
+export const errorHandler = (err, reg, res, next) => {
+    const { status = 500, message = "Something went wrong" } = err;
 
-        res.status(500).json({
-            status: 500,
-            message: "Something went wrong",
-            data: err.message,
-        });
+    res.status(status).json({
+        status,
+        message,
+        data: err.message,
+    });
 };
-
-export default errorHandler;
