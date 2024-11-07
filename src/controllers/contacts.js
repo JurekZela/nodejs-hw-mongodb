@@ -1,9 +1,16 @@
 import createHttpError from "http-errors";
 import mongoose from 'mongoose';
 import * as contactServices from "../services/contacts.js";
+import { parsePaginationParams } from "../utils/parsePaginationParams.js";
+
+import { sortByList } from "../db/models/Contact.js";
+import { parseSortParams } from "../utils/parseSortParams.js";
 
 export const getContactsController = async (reg, res) => {
-    const data = await contactServices.getContacts();
+  const {page, perPage} = parsePaginationParams(reg.query);
+  const {sortBy, sortOrder} = parseSortParams(reg.query, sortByList);
+
+  const data = await contactServices.getContacts({ page, perPage, sortBy, sortOrder});
 
     res.json({
         status: 200,
