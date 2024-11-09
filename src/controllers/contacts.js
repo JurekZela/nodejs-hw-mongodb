@@ -80,4 +80,4 @@ export const deleteContactController = async (reg, res, next) => {
     };
 
     res.status(204).send();
-};
+  };
