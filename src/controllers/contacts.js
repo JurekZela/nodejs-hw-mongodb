@@ -6,11 +6,12 @@ import { parsePaginationParams } from "../utils/parsePaginationParams.js";
 import { sortByList } from "../db/models/Contact.js";
 import { parseSortParams } from "../utils/parseSortParams.js";
 
-export const getContactsController = async (reg, res) => {
-  const {page, perPage} = parsePaginationParams(reg.query);
-  const {sortBy, sortOrder} = parseSortParams(reg.query, sortByList);
+export const getContactsController = async (req, res) => {
+  const { _id: userId } = req.user;
+  const {page, perPage} = parsePaginationParams(req.query);
+  const {sortBy, sortOrder} = parseSortParams(req.query, sortByList);
 
-  const data = await contactServices.getContacts({ page, perPage, sortBy, sortOrder});
+  const data = await contactServices.getContacts({ page, perPage, sortBy, sortOrder, userId});
 
     res.json({
         status: 200,
@@ -19,14 +20,16 @@ export const getContactsController = async (reg, res) => {
     });
 };
 
-export const getContactByIdController =  async (reg, res, next) => {
-    const { contactId } = reg.params;
+export const getContactByIdController =  async (req, res, next) => {
+    const { contactId } = req.params;
+    const { _id: userId } = req.user;
+
 
     if (!mongoose.Types.ObjectId.isValid(contactId)) {
         throw createHttpError(404, 'Contact not found');
       }
 
-    const data = await contactServices.getContactById(contactId);
+    const data = await contactServices.getContactById(contactId, userId);
 
 
      if (!data) {
@@ -41,8 +44,9 @@ export const getContactByIdController =  async (reg, res, next) => {
     });
 };
 
-export const createContactController = async (reg, res) => {
-    const contact = await contactServices.createContact(reg.body);
+export const createContactController = async (req, res) => {
+  const { _id: userId } = req.user;
+    const contact = await contactServices.createContact({ ...req.body, userId});
 
     res.status(201).json(
         {
@@ -53,10 +57,10 @@ export const createContactController = async (reg, res) => {
     );
 };
 
-export const patchContactController = async (reg, res, next) => {
-  const { contactId } = reg.params;
+export const patchContactController = async (req, res, next) => {
+  const { contactId } = req.params;
 
-  const result = await contactServices.updateContact({ _id: contactId, payload: reg.body });
+  const result = await contactServices.updateContact({ _id: contactId, payload: req.body });
 
   if (!result) {
     next(createHttpError(404, "Contact not found"));
@@ -70,8 +74,8 @@ export const patchContactController = async (reg, res, next) => {
   });
 };
 
-export const deleteContactController = async (reg, res, next) => {
-    const { contactId } = reg.params;
+export const deleteContactController = async (req, res, next) => {
+    const { contactId } = req.params;
     const contact = await contactServices.deleteContact(contactId);
 
     if (!contact) {
