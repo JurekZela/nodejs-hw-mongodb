@@ -2,7 +2,7 @@ import { Schema, model } from "mongoose";
 import { typeList } from "../../constants/contacts.js";
 import  { handleSaveError, seUpdateSettings } from './hooks.js';
 
-const contactsSchema =  new Schema({
+const contactsSchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -25,6 +25,10 @@ const contactsSchema =  new Schema({
         enum: [...typeList],
         required: true,
         default: 'personal',
+    },
+    userId: {
+        type: Schema.Types.ObjectId,
+        required: true,
     },
 },  { timestamps: true,  versionKey: false, });
 
