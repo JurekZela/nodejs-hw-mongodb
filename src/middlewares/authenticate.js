@@ -1,9 +1,9 @@
 import createHttpError from "http-errors";
 import { findSession, findUser } from "../services/auth.js";
 
-export const authenticate = async(reg, res, next) => {
+export const authenticate = async(req, res, next) => {
 
-    const authHeader = reg.get("Authorization");
+    const authHeader = req.get("Authorization");
     if (!authHeader) {
        return next(createHttpError(401, "Authorization header missing"));
     }
@@ -31,7 +31,7 @@ export const authenticate = async(reg, res, next) => {
         return next(createHttpError(401, "User not found"));
     };
 
-    reg.user = user;
+    req.user = user;
 
     next();
 };
