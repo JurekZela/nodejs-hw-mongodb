@@ -33,6 +33,8 @@ export const updateContact = async ({contactId, userId, payload, options = {}}) 
     const rawResult = await ContactCollection.findOneAndUpdate({ contactId, userId }, payload, {
         ...options,
         includeResultMetadata: true,
+            new: true,
+            runValidators: true,
     });
 
 
@@ -44,4 +46,6 @@ export const updateContact = async ({contactId, userId, payload, options = {}}) 
     };
 };
 
-export const deleteContact = async ({ id, userId }) => await ContactCollection.findOneAndDelete({ id, userId });
+export const deleteContact = (contactId, userId ) => {
+  return ContactCollection.findOneAndDelete( contactId, userId );
+};
