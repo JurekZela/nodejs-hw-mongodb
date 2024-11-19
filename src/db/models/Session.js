@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import  { handleSaveError, seUpdateSettings } from './hooks.js';
+import  { handleSaveError } from './hooks.js';
 
 const sessionSchema = new Schema({
 userId: { type: Schema.Types.ObjectId, required: true, ref: "user" },
@@ -10,8 +10,6 @@ refreshTokenValidUntil: { type: Date, required: true },
 }, { versionKey: false, timestamps: true } );
 
 sessionSchema.post('save', handleSaveError);
-
-sessionSchema.pre('findOneAndUpdate', seUpdateSettings);
 
 sessionSchema.post('findOneAndUpdate', handleSaveError);
 

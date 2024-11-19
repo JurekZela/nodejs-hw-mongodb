@@ -1,5 +1,5 @@
 import { model, Schema } from 'mongoose';
-import  { handleSaveError, seUpdateSettings } from './hooks.js';
+import  { handleSaveError } from './hooks.js';
 import { emailRegexp } from '../../constants/users.js';
 
 const userSchema = new Schema({
@@ -9,8 +9,6 @@ const userSchema = new Schema({
 }, { timestamps: true, versionKey: false });
 
 userSchema.post('save', handleSaveError);
-
-userSchema.pre('findOneAndUpdate', seUpdateSettings);
 
 userSchema.post('findOneAndUpdate', handleSaveError);
 
