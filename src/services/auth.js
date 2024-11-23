@@ -148,36 +148,8 @@ export const requestResetEmail = async(token) => {
             verify: true
         });
 
-    } catch(err) {
-        throw createHttpError(401, err.message);
+    } catch {
+        throw createHttpError(500, "Failed to send the email, please try again later.");
 
     }
-};
-
-export const resetPassword = async(payload) => {
-    let entries;
-
-    if(!payload.token) {
-        throw createHttpError(401, "Token is expired or invalid.");
-    }
-
-    try {
-        entries = jwt.verify(payload.token, env('JW_SECRET'));
-    } catch (err) {
-        if(err instanceof Error) throw createHttpError(401, err.message);
-        throw err;
-    }
-
-    const user = await UserCollection.findOne({
-        email: entries.email,
-        _id: entries.sub,
-    });
-
-    if (!user) {
-        throw createHttpError(404, 'User not found!');
-    };
-
-    const encryptedPassword = await bcrypt.hash(payload.password, 10);
-
-    await UserCollection.updateOne({_id: user._id}, {password: encryptedPassword},);
 };
