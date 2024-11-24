@@ -1,10 +1,17 @@
 import createHttpError from "http-errors";
 import mongoose from 'mongoose';
+import * as path from "node:path";
 import * as contactServices from "../services/contacts.js";
 import { parsePaginationParams } from "../utils/parsePaginationParams.js";
 
 import { sortByList } from "../db/models/Contact.js";
 import { parseSortParams } from "../utils/parseSortParams.js";
+import { saveFileToUploadDir } from "../utils/saveFileToUploadDir.js";
+import { saveFileCloudinary } from "../utils/saveFileToCloudinary.js";
+import { env } from "../utils/env.js";
+import { CLOUDINARY } from "../constants/index.js";
+
+const enableCloudinary = env(CLOUDINARY.ENABLE_CLOUDINARY);
 
 export const getContactsController = async (req, res) => {
   const { _id: userId } = req.user;
@@ -47,7 +54,20 @@ export const getContactByIdController =  async (req, res, next) => {
 
 export const createContactController = async (req, res) => {
   const { _id: userId } = req.user;
-    const contact = await contactServices.createContact({ ...req.body, userId});
+let photo = null;
+
+if (req.file) {
+  if (enableCloudinary === "true") {
+    photo = await saveFileCloudinary(req.file, "photos");
+  }else {
+    await saveFileToUploadDir(req.file);
+
+    photo = path.join( req.file.filename);
+  };
+
+}
+
+    const contact = await contactServices.createContact({ ...req.body, photo, userId});
 
     res.status(201).json(
         {
@@ -61,9 +81,20 @@ export const createContactController = async (req, res) => {
 export const patchContactController = async (req, res, next) => {
   const { contactId } = req.params;
   const { _id: userId } = req.user;
+  let photo = null;
 
+  if (req.file) {
+    if (enableCloudinary === "true") {
+      photo = await saveFileCloudinary(req.file, "photos");
+    }else {
+      await saveFileToUploadDir(req.file);
 
-  const result = await contactServices.updateContact({_id: contactId, userId, payload: req.body});
+      photo = path.join( req.file.filename);
+    };
+
+  }
+
+  const result = await contactServices.updateContact({_id: contactId, userId, photo, payload: req.body});
 
 
   if (!result) {
@@ -73,7 +104,7 @@ export const patchContactController = async (req, res, next) => {
   res.json({
     status: 200,
     message: 'Successfully upserted a student!',
-    data: result.contact,
+    data:  result,
   });
 };
 
