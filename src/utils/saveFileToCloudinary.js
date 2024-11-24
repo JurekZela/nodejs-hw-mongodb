@@ -3,9 +3,9 @@ import { unlink } from 'node:fs/promises';
 import { env } from './env.js';
 
 cloudinary.config({
-    cloud_name: env("CLOUD_NAME"),
-    api_key: env("API_KEY"),
-    api_secret: env("API_SECRET"),
+    cloud_name: env('CLOUD_NAME'),
+    api_key: env('API_KEY'),
+    api_secret: env('API_SECRET'),
 });
 
 export const saveFileCloudinary = async(file, folder) => {
