@@ -30,13 +30,16 @@ const contactsSchema = new Schema({
         type: Schema.Types.ObjectId,
         required: true,
     },
+    photo: {
+        type: String,
+    },
 },  { timestamps: true,  versionKey: false, });
 
 contactsSchema.post('save', handleSaveError);
 
 contactsSchema.post('findOneAndUpdate', handleSaveError);
 
-export const sortByList = ["name", "phoneNumber", "email", "contactType"];
+export const sortByList = ["name", "phoneNumber", "email", "contactType",];
 
 const ContactCollection = model("contacts", contactsSchema);
 

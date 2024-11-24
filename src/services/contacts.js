@@ -29,8 +29,8 @@ export const getContactById = ({id, userId}) => ContactCollection.findOne({id, u
 
 export const createContact = payload => ContactCollection.create(payload);
 
-export const updateContact = async ({contactId, userId, payload, options = {}}) => {
-    const rawResult = await ContactCollection.findOneAndUpdate({ contactId, userId }, payload, {
+export const updateContact = async ({contactId, userId, photo, payload, options = {}}) => {
+    const rawResult = await ContactCollection.findOneAndUpdate({ contactId, userId, }, payload, {
         ...options,
         includeResultMetadata: true,
             new: true,
@@ -42,6 +42,7 @@ export const updateContact = async ({contactId, userId, payload, options = {}}) 
 
     return {
         contact: rawResult.value,
+        photo,
         isNew: Boolean(rawResult.lastErrorObject.upserted),
     };
 };
