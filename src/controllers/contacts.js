@@ -9,9 +9,8 @@ import { parseSortParams } from "../utils/parseSortParams.js";
 import { saveFileToUploadDir } from "../utils/saveFileToUploadDir.js";
 import { saveFileCloudinary } from "../utils/saveFileToCloudinary.js";
 import { env } from "../utils/env.js";
-import { CLOUDINARY } from "../constants/index.js";
 
-const enableCloudinary = env(CLOUDINARY.ENABLE_CLOUDINARY);
+const enableCloudinary = env("ENABLE_CLOUDINARY");
 
 export const getContactsController = async (req, res) => {
   const { _id: userId } = req.user;
