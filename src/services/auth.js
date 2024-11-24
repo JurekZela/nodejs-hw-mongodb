@@ -44,36 +44,12 @@ export const register = async (payload) => {
     }
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await UserCollection.create({
+    return await UserCollection.create({
         ...payload,
         password: hashPassword
     });
 
-    const templateSource = await fs.readFile(emailTemplatePath, "utf-8");
 
-    const template = Handlebars.compile(templateSource);
-
-    const token = jwt.sign({email}, jwtSecret, {expiresIn:'5m'});
-
-    const html = template({
-        name: newUser.name,
-        link: `${appDomain}/reset-password?token=${token}`,
-    });
-
-    const verifyEmail = {
-        to: email,
-        subject: 'Reset your password',
-        html,
-    };
-
-
-    if (!newUser) {
-        throw createHttpError(404, "User not found!");
-    };
-
-        await sendEmail(verifyEmail);
-
-        return newUser;
 };
 
 export const login = async ({ email, password }) => {
@@ -82,11 +58,6 @@ export const login = async ({ email, password }) => {
     if (!user) {
         throw createHttpError(401, "Email or password invalid, try again:)");
     };
-
-
-    // if (!user.verify) {
-    //     throw createHttpError(401, "Email not verified");
-    // };
 
     const passwordCompare = await bcrypt.compare(password, user.password);
 
@@ -134,22 +105,68 @@ export const findSession = filter => SessionCollection.findOne(filter);
 
 export const findUser = filter => UserCollection.findOne(filter);
 
-export const requestResetEmail = async(token) => {
+export const requestResetToken = async(email) => {
+    const user = await UserCollection.findOne({ email });
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  };
+
+  const resetToken = jwt.sign(
+    {
+        sub: user._id,
+        email,
+    },
+    jwtSecret,
+    {
+        expiresIn: "5m",
+    },
+  );
+
+  const templateSource = await fs.readFile(emailTemplatePath, "utf-8");
+
+const template = Handlebars.compile(templateSource);
+
+  const html = template({
+    name: user.name,
+    link: `${appDomain}/reset-pwd?token=${resetToken}`,
+});
+
+ const send  = await sendEmail({
+    to: email,
+    subject: 'Reset your password',
+    html,
+  });
+
+  if (!send) {
+    throw createHttpError(500, "Failed to send the email, please try again later.");
+  }
+
+  return send;
+};
+
+export const resetPwd = async (payload) => {
+    let entries;
+
     try {
-        const { email } = jwt.verify(token, jwtSecret);
+      entries = jwt.verify(payload.token, jwtSecret);
 
-        const user = UserCollection.findOne({ email });
-
-        if (!user) {
-            throw createHttpError(404, "User not found!");
-        }
-
-        return await UserCollection.findByIdAndUpdate(user._id, {
-            verify: true
-        });
-
-    } catch {
-        throw createHttpError(500, "Failed to send the email, please try again later.");
-
+    } catch (err) {
+      if (err instanceof Error) throw createHttpError(401, "Token is expired or invalid.");
     }
+
+    const user = await UserCollection.findOne({
+      email: entries.email,
+      _id: entries.sub,
+    });
+
+    if (!user) {
+        throw createHttpError(404, "User not found!");
+    }
+
+    const encryptedPassword = await bcrypt.hash(payload.password, 10);
+
+   return await UserCollection.updateOne(
+      { _id: user._id },
+      { password: encryptedPassword },
+    );
 };
