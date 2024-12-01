@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 
 import { env } from "./utils/env.js";
 import router from "./routers/contacts.js";
+import { swaggerDocs } from "./middlewares/swaggerDocs.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import notFoundHandler from "./middlewares/notFoundHandler.js";
 import authRouter from "./routers/auth.js";
@@ -16,6 +17,7 @@ export const setupServer = () => {
 
     app.use(cors());
     app.use(express.static(UPLOAD_DIR));
+    app.use("/api-docs", swaggerDocs())
 
     app.use(express.json(
         {
@@ -25,7 +27,7 @@ export const setupServer = () => {
     ));
     app.use(cookieParser());
 
-    // app.use(logger);
+    app.use(logger);
 
     app.use("/auth", authRouter);
     app.use("/contacts", router);

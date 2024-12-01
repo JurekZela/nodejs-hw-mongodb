@@ -103,7 +103,7 @@ export const patchContactController = async (req, res, next) => {
   res.json({
     status: 200,
     message: 'Successfully upserted a student!',
-    data:  result,
+    data:  result.contact,
   });
 };
 
