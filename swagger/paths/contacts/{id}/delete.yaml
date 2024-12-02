@@ -15,20 +15,5 @@ parameters:
 responses:
   '204':
     description: Delete a contact
-    content:
-      application/json:
-        schema:
-          type: object
-          required:
-            - status
-            - message
-            - data
-          properties:
-            status:
-              type: integer
-              example: 204
-            message:
-              type: string
-              example: Successfully delete a contact!
   '404':
     $ref: ../../../components/responses/404.yaml
